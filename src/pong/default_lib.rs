@@ -104,6 +104,68 @@ impl Particle {
     }
 }
 
+#[derive(Clone, Eq, PartialEq, Default, Debug)]
+pub enum ButtonType {
+    P1You, P2You,
+    P1Bot, P2Bot,
+    P1Mat, P2Mat,
+    #[default]
+    Exit,
+    Ok,
+    Reset,
+}
+
+#[derive(Default)]
+pub struct ButtonEventSystem {
+    pub event_channel: EventChannel<ButtonType>,
+    pub reader: Vec<ReaderId<ButtonType>>,
+}
+impl ButtonEventSystem {
+    pub fn read(&mut self) -> EventIterator<ButtonType> {
+        self.event_channel.read(&mut self.reader[0])
+    }
+}
+
+#[derive(Eq, PartialEq)]
+pub enum Continue {
+    Continue,
+}
+
+#[derive(Default)]
+pub struct ContinueEventSystem {
+    pub event_channel: EventChannel<Continue>,
+    pub reader: Vec<ReaderId<Continue>>,
+}
+impl ContinueEventSystem {
+    pub fn read(&mut self) -> EventIterator<Continue> {
+        self.event_channel.read(&mut self.reader[0])
+    }
+}
+
+#[derive(Clone, Eq, PartialEq, Default, Debug)]
+pub enum PlayerType {
+    #[default]
+    You,
+    Bot,
+    Mat
+}
+
+#[derive(Default, Debug)]
+pub struct PlayerController {
+    pub player1: PlayerType,
+    pub player2: PlayerType,
+}
+
+pub struct Button {
+    pub pos: Vector2<f32>,
+    pub size: Vector2<f32>,
+    pub but_type: ButtonType,
+}
+impl Component for Button {
+    type Storage = DenseVecStorage<Self>;
+}
+
+
 impl Component for Particle {
     type Storage = DenseVecStorage<Self>;
 }

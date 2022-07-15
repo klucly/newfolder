@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+// #![windows_subsystem = "windows"]
 
 mod pong;
 use pong::{Pong};
@@ -56,7 +56,9 @@ fn main() -> amethyst::Result<()> {
         .with(systems::PauseSystem, "pause_system", &[])
         .with(systems::TextRenderSupportSystem, "text_render_support_system", &[])
         .with(systems::TextRenderSupportSupportSystem, "text_render_support_support_system", &[])
-        .with(systems::MenuSystem, "menu_system", &[]);
+        .with(systems::MenuSystem, "menu_system", &[])
+        .with(systems::MouseHandleSystem, "mouse_handle_system", &[])
+        .with(systems::PlayerChangeSystem, "player_change_system", &[]);
 
     let assets_dir = app_root.join("assets");
     let mut game = Application::new(assets_dir, Pong, game_data)?;

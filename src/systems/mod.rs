@@ -13,6 +13,8 @@ pub use self::pause_system::PauseSystem;
 pub use self::text_render_support_system::TextRenderSupportSystem;
 pub use self::text_render_support_support_system::TextRenderSupportSupportSystem;
 pub use self::menu_system::MenuSystem;
+pub use self::mouse_handle_system::MouseHandleSystem;
+pub use self::player_change_system::PlayerChangeSystem;
 
 mod paddle;
 mod ballmove;
@@ -29,3 +31,5 @@ mod pause_system;
 mod text_render_support_system;
 mod text_render_support_support_system;
 mod menu_system;
+mod mouse_handle_system;
+mod player_change_system;

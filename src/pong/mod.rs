@@ -3,7 +3,7 @@ pub use default_lib::*;
 
 use amethyst::{
     assets::{AssetStorage, Loader, Handle},
-    core::{transform::Transform},
+    core::{transform::Transform, math::Vector2},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
     input::is_close_requested,
@@ -28,16 +28,18 @@ impl SimpleState for Pong {
         world.register::<FixedWidget>();
         world.register::<PauseElement>();
         world.register::<MenuElement>();
+        world.register::<Button>();
 
         initialise_event_system(world, 3);
         world.insert(Score::default());
         world.insert(Pause::default());
         world.insert(Menu::default());
+        world.insert(PlayerType::default());
 
         initialise_paddles(world, sprite_sheet_handle.clone());
+        initialise_menu(world, sprite_sheet_handle.clone(), font_spritesheet.clone());
         initialise_ball(world, sprite_sheet_handle.clone());
         initialise_particle_system(world, sprite_sheet_handle.clone());
-        initialise_menu(world, sprite_sheet_handle.clone());
         initialise_score(world, font_spritesheet.clone());
         initialise_speed_ui(world, font_spritesheet.clone());
         initialise_pause_elements(world, font_spritesheet.clone());
@@ -145,8 +147,87 @@ fn initialise_particle_system(world: &mut World, sprite_sheet_handle: Handle<Spr
     }
 }
 
-fn initialise_menu(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
-    let menu_sprite_render = SpriteRender::new(sprite_sheet_handle, 3);
+fn initialise_menu(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>, font_spritesheet: Handle<SpriteSheet>) {
+    let options = TextUiOptions::default();
+
+    let label_w1 = TextUi::generate(String::from("1"), world, font_spritesheet.clone(), options.clone());
+
+    let mut transform1 = Transform::default();
+    transform1.translation_mut().x = 38.5;
+    transform1.translation_mut().y = 67.;
+
+    world
+        .create_entity()
+        .with(label_w1)
+        .with(MenuElement)
+        .with(transform1)
+        .build();
+
+    let label_w2 = TextUi::generate(String::from("2"), world, font_spritesheet.clone(), options.clone());
+
+    let mut transform2 = Transform::default();
+    transform2.translation_mut().x = 54.5;
+    transform2.translation_mut().y = 67.;
+
+    world
+        .create_entity()
+        .with(label_w2)
+        .with(MenuElement)
+        .with(transform2)
+        .build();
+
+    let buttons = [
+        (ButtonType::P1You, 28., 54.5     , 13., 9., 8, "You"),
+        (ButtonType::P1Bot, 28., 54.5-12.0, 13., 9., 7, "Bot"),
+        (ButtonType::P1Mat, 28., 54.5-24.0, 13., 9., 7, "Mat"),
+        (ButtonType::P2You, 44., 54.5     , 13., 9., 8, "You"),
+        (ButtonType::P2Bot, 44., 54.5-12.0, 13., 9., 7, "Bot"),
+        (ButtonType::P2Mat, 44., 54.5-24.0, 13., 9., 7, "Mat"),
+
+        (ButtonType::Ok   , 64.01, 54.51    , 9., 9., 4, ""),
+        (ButtonType::Exit , 64.01, 54.51-12., 9., 9., 5, ""),
+        (ButtonType::Reset, 64.01, 54.51-24., 9., 9., 6, ""),
+    ];
+
+
+    for (button_type, x, y, w, h, sprite_n, text) in buttons {
+
+        if text.len() > 0 {
+            let label = TextUi::generate(String::from(text), world, font_spritesheet.clone(), options.clone());
+        
+            let mut text_transform = Transform::default();
+            text_transform.translation_mut().x = x + w / 2.0 + 4.01;
+            text_transform.translation_mut().y = y + h / 2.0 + 0.01;
+        
+            world
+                .create_entity()
+                .with(label)
+                .with(MenuElement)
+                .with(text_transform)
+                .build();
+        }
+
+        let render = SpriteRender::new(sprite_sheet_handle.clone(), sprite_n);
+        let mut transform = Transform::default();
+        transform.translation_mut().x = x + w / 2.0;
+        transform.translation_mut().y = y + h / 2.0;
+
+        let button = Button {
+            pos: Vector2::new(x, y),
+            size: Vector2::new(w, h),
+            but_type: button_type
+        };
+
+        world
+            .create_entity()
+            .with(button)
+            .with(transform)
+            .with(MenuElement)
+            .with(render.clone())
+            .build();
+    }
+            
+    let menu_sprite_render = SpriteRender::new(sprite_sheet_handle.clone(), 3);
     let mut menu_transform = Transform::default();
     menu_transform.translation_mut().x = ARENA_WIDTH / 2.0;
     menu_transform.translation_mut().y = ARENA_HEIGHT / 2.0;
@@ -171,10 +252,27 @@ fn initialise_event_system(world: &mut World, event_readers_count: u32) {
     }
 
     world.insert(game_state);
+
+    let mut event_channel = EventChannel::new();
+    let button = ButtonEventSystem {
+        reader: vec![event_channel.register_reader()],
+        event_channel: event_channel,
+    };
+
+    world.insert(button);
+
+    let mut event_channel = EventChannel::new();
+    let con = ContinueEventSystem {
+        reader: vec![event_channel.register_reader()],
+        event_channel: event_channel,
+    };
+
+    world.insert(con);
+
+
 }
 
 fn initialise_score(world: &mut World, font_spritesheet: Handle<SpriteSheet>) {
-    // world.insert(Score::default());
 
     let mut options = TextUiOptions::default();
     options.letter_size.x = 3.0;
