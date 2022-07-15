@@ -1,0 +1,16 @@
+[package]
+name = "newfolder"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+amethyst = {version = "0.15.3", features = ["no-slow-safety-checks"] }
+# amethyst = {version = "0.15.3", features = ["no-slow-safety-checks"] }
+rand = "0.8.5"
+serde = { version = "1.0", features = ["derive"] }
+
+[features]
+default = ["vulkan"]
+empty = ["amethyst/empty"]
+metal = ["amethyst/metal"]
+vulkan = ["amethyst/vulkan"]
