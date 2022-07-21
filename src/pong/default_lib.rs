@@ -366,6 +366,5 @@ impl TextUi {
         let text = vec![0u8 as char; size].iter().collect::<String>();
         TextUi::generate(text, world, sprite_sheet_handle, options)
     }
-
 }
 

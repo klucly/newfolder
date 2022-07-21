@@ -33,22 +33,27 @@ impl PaddleSystem {
 
     fn bot_movement(bally: f32, ball: &Ball, transform: &mut Transform, delta: f32) {
         let y = transform.translation().y;
-        if bally + ball.velocity.y * delta > y - 2. && y < ARENA_HEIGHT - PADDLE_HEIGHT / 2.0{
-            transform.translation_mut().y += 1.2;
+        if bally + ball.velocity.y * delta > y - 2. && y < ARENA_HEIGHT - PADDLE_HEIGHT / 2.0 {
+            transform.translation_mut().y += (ball.velocity.y.abs() * delta).min(1.2);
         }
         if bally + ball.velocity.y * delta < y + 2. && y > PADDLE_HEIGHT / 2.0 {
-            transform.translation_mut().y -= 1.2;
+            transform.translation_mut().y -= (ball.velocity.y.abs() * delta).min(1.2);
         }
     }
 
     fn mat_movement(paddle: &Paddle, transform: &mut Transform, i: &mut usize) {
         let calc_y = PaddleSystem::mat_calc_pos(*i, paddle.side.clone());
         let y = transform.translation().y;
-        if calc_y > y - 2. && y < ARENA_HEIGHT - PADDLE_HEIGHT / 2.0 {
+        if calc_y > y && y < ARENA_HEIGHT - PADDLE_HEIGHT / 2.0 {
             transform.translation_mut().y += 1.2;
-        }
-        if calc_y < y + 2. && y > PADDLE_HEIGHT / 2.0 {
+        } if calc_y < y + 2. && y > PADDLE_HEIGHT / 2.0 {
             transform.translation_mut().y -= 1.2;
+        }
+
+        if transform.translation().y > ARENA_HEIGHT - PADDLE_HEIGHT / 2.0 {
+            transform.translation_mut().y = ARENA_HEIGHT - PADDLE_HEIGHT / 2.0;
+        } else if transform.translation().y < PADDLE_HEIGHT / 2.0 {
+            transform.translation_mut().y = PADDLE_HEIGHT / 2.0;
         }
     }
     
