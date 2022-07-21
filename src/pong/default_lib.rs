@@ -362,9 +362,9 @@ impl TextUi {
         widget
     }
 
-    pub fn generate_size(size: usize, world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>, options: TextUiOptions) -> FixedWidget {
-        let text = vec![0u8 as char; size].iter().collect::<String>();
-        TextUi::generate(text, world, sprite_sheet_handle, options)
-    }
+    // pub fn generate_size(size: usize, world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>, options: TextUiOptions) -> FixedWidget {
+    //     let text = vec![0u8 as char; size].iter().collect::<String>();
+    //     TextUi::generate(text, world, sprite_sheet_handle, options)
+    // }
 }
 

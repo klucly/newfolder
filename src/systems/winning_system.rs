@@ -1,4 +1,4 @@
-use crate::pong::{GameStateEvent, GameState, Score};
+use crate::pong::{GameStateEvent, GameState, Score, MatBuffer};
 use amethyst::core::{Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::storage::MaskedStorage;
@@ -17,7 +17,9 @@ impl WinningSystem {
         Self { event_reader_id: 0 }
     }
     
-    pub fn full_reset(balls: Storage<Ball, FetchMut<MaskedStorage<Ball>>>, transforms: Storage<Transform, FetchMut<MaskedStorage<Transform>>>, mut score: Write<Score>) {
+    pub fn full_reset(balls: Storage<Ball, FetchMut<MaskedStorage<Ball>>>, transforms: Storage<Transform, FetchMut<MaskedStorage<Transform>>>, mut score: Write<Score>, mut mat_buffer: Write<MatBuffer>) {
+        mat_buffer.i_left = 0;
+        mat_buffer.i_right = 0;
         score.player1 = 0;
         score.player2 = 0;
         WinningSystem::reset(balls, transforms);
