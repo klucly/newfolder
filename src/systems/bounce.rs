@@ -1,22 +1,32 @@
 use amethyst::{
     core::{Transform},
     derive::SystemDesc,
-    ecs::{Join, ReadStorage, System, SystemData, WriteStorage},
+    ecs::{Join, ReadStorage, System, SystemData, WriteStorage}, shred::Write,
 };
 
-use crate::pong::{Ball, Paddle, ARENA_HEIGHT, Side};
+use crate::pong::{Ball, Paddle, ARENA_HEIGHT, Side, MatBuffer};
 
 #[derive(SystemDesc)]
-pub struct BounceSystem;
+pub struct BounceSystem {
+    pub prev_collision: bool,
+}
+
+impl BounceSystem {
+    pub fn new() -> Self {
+        Self { prev_collision: false }
+    }
+}
 
 impl<'s> System<'s> for BounceSystem {
     type SystemData = (
         WriteStorage<'s, Ball>,
         ReadStorage<'s, Paddle>,
         ReadStorage<'s, Transform>,
+        Write<'s, MatBuffer>
     );
 
-    fn run(&mut self, (mut balls, paddles, transforms): Self::SystemData) {
+    fn run(&mut self, (mut balls, paddles, transforms, mut mat_buffer): Self::SystemData) {
+        let mut cur_collision = false;
         for (ball, transform) in (&mut balls, &transforms).join() {
             let ball_x = transform.translation().x;
             let ball_y = transform.translation().y;
@@ -40,16 +50,23 @@ impl<'s> System<'s> for BounceSystem {
                     paddle_y + paddle.height + ball.radius,
                     paddle_y - ball.radius,
                 ) {
+                    cur_collision = true;
                     if paddle.side == Side::Left {
-                        ball.velocity.x = ball.velocity.x.abs()
+                        ball.velocity.x = ball.velocity.x.abs();
+                        if !self.prev_collision {
+                            mat_buffer.i_left += 1;
+                        }
                     }
                     else {
-                        ball.velocity.x = -ball.velocity.x.abs()
+                        ball.velocity.x = -ball.velocity.x.abs();
+                        if !self.prev_collision {
+                            mat_buffer.i_right += 1;
+                        }
                     }
                 }
             }
-
         }
+        self.prev_collision = cur_collision;
     }
 }
 

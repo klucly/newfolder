@@ -3,7 +3,7 @@ use amethyst::ecs::{Write, Read, System, SystemData};
 use amethyst::input::{InputHandler, StringBindings};
 use amethyst::shrev::EventChannel;
 
-use crate::pong::{GameState, GameStateEvent, PauseState, Pause, MenuState, Menu, ContinueEventSystem, Continue};
+use crate::pong::{GameState, GameStateEvent, PauseState, Pause, MenuState, Menu, ContinueEventSystem};
 
 #[derive(SystemDesc)]
 pub struct StateChangeSystem {

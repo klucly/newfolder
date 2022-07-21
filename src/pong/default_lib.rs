@@ -43,6 +43,7 @@ impl Component for Paddle {
     type Storage = DenseVecStorage<Self>;
 }
 
+#[derive(Clone)]
 pub struct Ball {
     pub velocity: Vector2<f32>,
     pub radius: f32,
@@ -142,12 +143,40 @@ impl ContinueEventSystem {
     }
 }
 
+#[derive(Eq, PartialEq)]
+pub enum Exit {
+    Exit,
+}
+
+#[derive(Default)]
+pub struct ExitEventSystem {
+    pub event_channel: EventChannel<Exit>,
+    pub reader: Vec<ReaderId<Exit>>,
+}
+impl ExitEventSystem {
+    pub fn read(&mut self) -> EventIterator<Exit> {
+        self.event_channel.read(&mut self.reader[0])
+    }
+}
+
 #[derive(Clone, Eq, PartialEq, Default, Debug)]
 pub enum PlayerType {
     #[default]
     You,
     Bot,
     Mat
+}
+
+#[derive(Debug, Default)]
+pub struct MatBuffer {
+    pub i_left: usize,
+    pub i_right: usize,
+}
+
+#[derive(Default)]
+pub struct BallPos {
+    pub x: f32,
+    pub y: f32
 }
 
 #[derive(Default, Debug)]

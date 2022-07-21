@@ -30,11 +30,13 @@ impl SimpleState for Pong {
         world.register::<MenuElement>();
         world.register::<Button>();
 
-        initialise_event_system(world, 3);
+        initialise_event_system(world, 4);
         world.insert(Score::default());
         world.insert(Pause::default());
         world.insert(Menu::default());
         world.insert(PlayerType::default());
+        world.insert(BallPos::default());
+        world.insert(MatBuffer::default());
 
         initialise_paddles(world, sprite_sheet_handle.clone());
         initialise_menu(world, sprite_sheet_handle.clone(), font_spritesheet.clone());
@@ -54,6 +56,11 @@ impl SimpleState for Pong {
         
         if let StateEvent::Window(event) = &event {
             if is_close_requested(&event) {
+                return Trans::Quit;
+            }
+        }
+        if let Some(events) = _data.world.get_mut::<ExitEventSystem>() {
+            for _event in events.read() {
                 return Trans::Quit;
             }
         }
@@ -253,21 +260,29 @@ fn initialise_event_system(world: &mut World, event_readers_count: u32) {
 
     world.insert(game_state);
 
-    let mut event_channel = EventChannel::new();
+    let mut event_channel1 = EventChannel::new();
     let button = ButtonEventSystem {
-        reader: vec![event_channel.register_reader()],
-        event_channel: event_channel,
+        reader: vec![event_channel1.register_reader()],
+        event_channel: event_channel1,
     };
 
     world.insert(button);
 
-    let mut event_channel = EventChannel::new();
+    let mut event_channel2 = EventChannel::new();
     let con = ContinueEventSystem {
-        reader: vec![event_channel.register_reader()],
-        event_channel: event_channel,
+        reader: vec![event_channel2.register_reader()],
+        event_channel: event_channel2,
     };
 
     world.insert(con);
+
+    let mut event_channel3 = EventChannel::new();
+    let exit = ExitEventSystem {
+        reader: vec![event_channel3.register_reader()],
+        event_channel: event_channel3,
+    };
+
+    world.insert(exit);
 
 
 }
@@ -314,7 +329,7 @@ fn initialise_speed_ui(world: &mut World, font_spritesheet: Handle<SpriteSheet>)
 
     let mut transform2 = Transform::default();
     transform2.translation_mut().x = ARENA_WIDTH / 2.0 + 5.1;
-    transform2.translation_mut().y = ARENA_HEIGHT - 15.0;
+    transform2.translation_mut().y = ARENA_HEIGHT - 15.05;
 
     world
         .create_entity()

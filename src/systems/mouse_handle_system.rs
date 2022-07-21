@@ -1,5 +1,7 @@
 use crate::pong::Continue;
 use crate::pong::ContinueEventSystem;
+use crate::pong::Exit;
+use crate::pong::ExitEventSystem;
 use crate::pong::Score;
 use crate::pong::Ball;
 use crate::pong::Menu;
@@ -26,10 +28,11 @@ impl<'s> System<'s> for MouseHandleSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Ball>,
         Write<'s, Score>,
-        Write<'s, ContinueEventSystem>
+        Write<'s, ContinueEventSystem>,
+        Write<'s, ExitEventSystem>
     );
 
-    fn run(&mut self, (buttons, input, mut button_event_system, menu, transforms, balls, score, mut con): Self::SystemData) {
+    fn run(&mut self, (buttons, input, mut button_event_system, menu, transforms, balls, score, mut con, mut exit): Self::SystemData) {
         let bot_buttons = [
             ButtonType::P1You,
             ButtonType::P1Bot,
@@ -52,6 +55,7 @@ impl<'s> System<'s> for MouseHandleSystem {
                             match button.but_type {
                                 ButtonType::Reset => WinningSystem::full_reset(balls, transforms, score),
                                 ButtonType::Ok => con.event_channel.single_write(Continue::Continue),
+                                ButtonType::Exit => exit.event_channel.single_write(Exit::Exit),
                                 _ => ()
                             }
                             return;

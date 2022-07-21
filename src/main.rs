@@ -44,7 +44,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(input_bundle)?
         .with(systems::PaddleSystem, "paddle_system", &["input_system"])
         .with(systems::BallMoveSystem, "ball_control_system", &[])
-        .with(systems::BounceSystem, "bounce_system", &[])
+        .with(systems::BounceSystem::new(), "bounce_system", &[])
         .with(systems::BallSpeedUp, "ball_speed_up", &[])
         .with(systems::ParticleSystem, "particle_system", &[])
         .with(systems::ParticleInteractionSystem, "particle_interaction_system", &[])
